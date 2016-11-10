@@ -1,11 +1,12 @@
 'use strict';
-
+//configuring dependencies file
 var express = require('express');
 var parser = require('body-parser');
 var router = require('./api');
 
 var app = express();
 
+//run these scripts in order they are required
 require('./database');
 require('./seed');
 
