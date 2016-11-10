@@ -5,66 +5,32 @@ var Question = require('../models/question');
 
 var router = express.Router();
 
-
-
-
-//receive get from browser at this url
+//Returns a single trivia question:
+/* { "question": "Who was the first computer programmer?",
+    "answerId": 1 }
+*/
 router.get('/question', function(req, res) {
 
   Question.count().exec(function (err, count) {
     // Get a random entry
     var random = Math.floor(Math.random() * count)
 
-
     Question.findOne().skip(random).exec(
       function(err, questions){
+
       if(err) {
         return res.status(500).json({message: err.message});
       }
-    //  console.log("Code Before .cout() method");
-    // Get the count of all users
 
-      // Again query all users but only fetch one offset by our random #
-      //Question.findOne().skip(random).exec(
-        //function (err, result) {
-          // Tada! random user
-        //  console.log(result)
-      //})
       res.json(questions);
-    })
-
-
+    });
   });
 });
 
-/*
-// Get the count of all users
-User.count().exec(function (err, count) {
-
-  // Get a random entry
-  var random = Math.floor(Math.random() * count)
-
-  // Again query all users but only fetch one offset by our random #
-  User.findOne().skip(random).exec(
-    function (err, result) {
-      // Tada! random user
-      console.log(result)
-    })
-})
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-//receive post from browser at this url
+//Creates a new trivia question:
+/*{ "question": "Who led software development for NASA's Apollo missions?",
+  "answer": "Margaret Hamilton" }
+}*/
 router.post('/question', function(req, res) {
   var question = req.body;
   Question.create(question, function(err, question){
