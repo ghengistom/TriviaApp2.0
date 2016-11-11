@@ -2,8 +2,16 @@
 
 var express = require('express');
 var Question = require('../models/question');
-
+var redis = require("redis"); //require redis module
 var router = express.Router();
+
+//make count object to store the counts
+var counts = {};
+// create a client to connect to redis
+var client = redis.createClient();
+
+counts.right = 0;
+
 
 //Returns a single trivia question:
 /* { "question": "Who was the first computer programmer?",
@@ -21,8 +29,14 @@ router.get('/question', function(req, res) {
       if(err) {
         return res.status(500).json({message: err.message});
       }
-
-      res.json(questions);
+      //create a new object and fill it with 2/3 of the attributes from DB object
+      res.json({
+                //JSON format
+                //http://www.w3schools.com/js/js_json_intro.asp
+                // key        //value
+                "question" : questions.question,
+                'answerID' :questions._id
+              });
     });
   });
 });
@@ -57,6 +71,47 @@ router.put('/questions/:id', function(req, res) {
   });
 });
 
-// TODO : Add a DELETE route to delete entries
+
+//var counts = {};
+//counts.
+//user needs to post answerId
+router.post('/answer', function(req, res)
+{
+  //get user answer from browser
+  var userAnswer = req.body;
+
+  Question.findById(userAnswer._id, function(err, question)
+  {
+    var count = {};
+    if (err){
+      return res.status(500).json({err: err.message});
+    }
+    client.get("right", function(err, rightCount){
+      //check to make sure there's no error
+      if (err!==null){
+        console.log("ERROR: " + err);
+
+        //exit the function
+        return;
+      }
+
+      count.right = parseInt(rightCount, 10) || 0;
+
+    })
+    if(userAnswer.answer === question.answer)
+    {
+      client.incr("right");
+      count.right = counts.right + 1;
+      return res.json({ "correct" : true});
+    } else
+    {
+      client.incr("wrong");
+      count.wrong = counts.wrong + 1;
+      return res.json({"correct" : false});
+    }
+  })
+
+});
+
 
 module.exports = router;
