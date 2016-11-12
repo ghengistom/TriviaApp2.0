@@ -9,8 +9,31 @@ var router = express.Router();
 var counts = {};
 // create a client to connect to redis
 var client = redis.createClient();
-
 counts.right = 0;
+
+
+//SOCKET STUFF
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+app.get('/', function(req, res){
+  res.sendfile(__dirname + '/index.html');
+});
+
+io.on('connection', function(socket){
+  //console.log('a user connected');
+  socket.on('chat message', function(msg){
+    io.emit('chat message', msg);
+  });
+});
+
+
+
+//END SOCKET STUFF
+
+
+
 
 
 //Returns a single trivia question:
