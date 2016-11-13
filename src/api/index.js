@@ -1,32 +1,22 @@
 'use strict';
 
+
 var express = require('express');
+var router = express.Router();
 var Question = require('../models/question');
 var redis = require("redis"); //require redis module
-var router = express.Router();
+
+
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
+
 
 //make count object to store the counts
 var counts = {};
 // create a client to connect to redis
 var client = redis.createClient();
 counts.right = 0;
-
-
-//SOCKET STUFF
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-
-app.get('/', function(req, res){
-  res.sendfile(__dirname + '/index.html');
-});
-
-io.on('connection', function(socket){
-  //console.log('a user connected');
-  socket.on('chat message', function(msg){
-    io.emit('chat message', msg);
-  });
-});
 
 
 
